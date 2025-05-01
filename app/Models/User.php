@@ -42,7 +42,11 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
+    }
+
+    public function setPasswordAttribute($password): void
+    {
+        $this->attributes['password'] = bcrypt($password);
     }
 }
