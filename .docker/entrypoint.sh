@@ -11,7 +11,10 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-sleep 3
+# Corrige permissões sempre que o container iniciar
+echo "Corrigindo permissões..."
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Substitui as variáveis de banco no .env
 echo "Configurando variáveis de ambiente"
@@ -28,7 +31,7 @@ composer install --no-interaction
 php artisan key:generate
 
 # Roda as migrations
-php artisan migrate --force
+php artisan migrate --seed
 
 # Executa o processo padrão do container (php-fpm)
 exec php-fpm
