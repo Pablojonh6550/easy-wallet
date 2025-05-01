@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: .docker/php/Dockerfile
+        image: easy-wallet-app
+        container_name: easy-wallet-app
+        restart: unless-stopped
+        volumes:
+            - .:/var/www
+        depends_on:
+            - mysql
+        environment:
+            DB_HOST: mysql
+            DB_PORT: 3306
+            DB_DATABASE: easy-wallet-db
+            DB_USERNAME: easy-agent
+            DB_PASSWORD: root
+        working_dir: /var/www
+        entrypoint: ["sh", "/usr/local/bin/entrypoint.sh"]
+
+    nginx:
+        image: nginx:alpine
+        container_name: easy-wallet-nginx
+        ports:
+            - "8000:80"
+        volumes:
+            - .:/var/www
+            - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - app
+
+    mysql:
+        image: mysql:8.0
+        container_name: mysql-container
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: easy-wallet-db
+            MYSQL_USER: easy-agent
+            MYSQL_PASSWORD: root
+        volumes:
+            - dbdata:/var/lib/mysql
+        ports:
+            - "3306:3306"
+
+volumes:
+    dbdata:
