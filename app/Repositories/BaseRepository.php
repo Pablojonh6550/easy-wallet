@@ -5,7 +5,7 @@ namespace App\Repositories;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use App\Interfaces\BaseInterface;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 abstract class BaseRepository implements BaseInterface
 {
@@ -43,7 +43,7 @@ abstract class BaseRepository implements BaseInterface
      * @param array $data The data to be inserted.
      * @return Model The created model instance.
      */
-    public function create(array $data): Model
+    public function create(array $data): Authenticatable|Model
     {
         return $this->model->create($data);
     }
