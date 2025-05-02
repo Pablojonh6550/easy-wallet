@@ -14,4 +14,9 @@ class DataBank extends Model
         'balance_special',
         'user_id',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

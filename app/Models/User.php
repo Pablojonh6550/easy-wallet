@@ -49,4 +49,9 @@ class User extends Authenticatable
     {
         $this->attributes['password'] = bcrypt($password);
     }
+
+    public function dataBank()
+    {
+        return $this->hasOne(DataBank::class);
+    }
 }
