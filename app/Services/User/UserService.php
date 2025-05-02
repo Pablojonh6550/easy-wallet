@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use App\Interfaces\User\UserInterface;
+use App\Services\DataBank\DataBankService;
 use App\Models\User;
 
 class UserService
 {
-    public function __construct(protected UserInterface $userRepository) {}
+    public function __construct(protected UserInterface $userRepository, protected DataBankService $dataBankService) {}
 
     /**
      * Retrieves all users.
@@ -34,15 +35,13 @@ class UserService
         return $this->userRepository->findById($id);
     }
 
-    /**
-     * Create a new user with the provided data.
-     *
-     * @param array $data The data to be used for creating the user.
-     * @return User The created user model instance.
-     */
-    public function create(array $data): Model
+    public function create(array $data): User
     {
-        return $this->userRepository->create($data);
+        $user = $this->userRepository->create($data);
+
+        $this->dataBankService->create($user);
+
+        return $user;
     }
 
     /**
