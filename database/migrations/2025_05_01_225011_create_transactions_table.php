@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('data_bank_id')->constrained();
             $table->float('amount');
             $table->string('type');
-            $table->foreign('user_id_receiver')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('user_id_receiver')->nullable()->constrained('users');
             $table->timestamps();
         });
     }
