@@ -24,18 +24,17 @@
                                 </div>
                             </div>
                             <div>
-                                <form id="deposit-form">
+                                <div id="deposit-form">
                                     <div class="mb-3">
-                                        <input type="text" class="form-control" placeholder="R$ 0,00" name="amount"
+                                        <input type="text" class="form-control" placeholder="R$ 0,00" id="amount"
                                             required>
                                     </div>
                                     <div class="mb-3">
-                                        <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
-                                            data-bs-target="#confirmDepositModal">
+                                        <button type="button" class="btn btn-primary w-100" id="open-deposit-modal">
                                             Depositar
                                         </button>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -48,7 +47,7 @@
             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form id="modal-deposit-form" action="{{ route('deposit.store') }}" method="POST">
+                    <form id="modal-deposit-form" action="{{ route('deposit.form-deposit') }}" method="POST">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title" id="confirmDepositModalLabel">Confirmar Depósito</h5>
@@ -74,7 +73,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const input = document.querySelector('input[placeholder="R$ 0,00"]');
+            const input = document.getElementById('amount');
             const modalAmountInput = document.getElementById('modal-amount');
             const modalForm = document.getElementById('modal-deposit-form');
             const passwordInput = document.getElementById('password');
@@ -87,10 +86,24 @@
             });
 
             // Preencher valor no hidden do modal ao abrir
-            const depositBtn = document.querySelector('[data-bs-target="#confirmDepositModal"]');
+            const depositBtn = document.getElementById('open-deposit-modal');
+            const depositModal = new bootstrap.Modal(document.getElementById('confirmDepositModal'));
+
             depositBtn.addEventListener('click', function() {
-                modalAmountInput.value = input.value;
+                const amountValue = input.value.trim();
+
+                if (!amountValue || amountValue === 'R$ 0,00') {
+                    alert('Por favor, preencha um valor para depositar.');
+                    return;
+                }
+
+                const rawValue = input.value.replace(/[^\d,]/g, '');
+                const floatValue = rawValue.replace(',', '.');
+                modalAmountInput.value = parseFloat(floatValue).toFixed(2);
+
+                depositModal.show();
             });
+
 
             // Validação do modal antes de enviar
             modalForm.addEventListener('submit', function(e) {
