@@ -9,7 +9,7 @@
                 <div class="col-12 col-md-6 offset-md-3">
                     <div class="card">
                         <div class="card-body">
-                            <form method="POST" class="w-100 p-4">
+                            <form action="{{ route(name: 'form-register') }}" method="POST" class="w-100 p-4">
                                 @csrf
                                 <div class="mb-3 w-100">
                                     <h2 class="mb-3">Registrar-se para continuar</h2>
