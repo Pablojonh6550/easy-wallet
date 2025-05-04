@@ -17,6 +17,8 @@
     {{-- @include('partials.header') --}}
 
     <main class="container">
+        @include('components.alert')
+
         @yield('content')
     </main>
 
