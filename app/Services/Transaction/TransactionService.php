@@ -5,11 +5,13 @@ namespace App\Services\Transaction;
 use App\Interfaces\Transaction\TransactionInterface;
 use App\Models\Transaction;
 use App\Models\User;
+use Dflydev\DotAccessData\Data;
 use Illuminate\Database\Eloquent\Collection;
+use App\Services\DataBank\DataBankService;
 
 class TransactionService
 {
-    public function __construct(protected TransactionInterface $transactionRepository) {}
+    public function __construct(protected TransactionInterface $transactionRepository, protected DataBankService $dataBankService) {}
 
     public function all(): Collection
     {
@@ -21,20 +23,36 @@ class TransactionService
         return $this->transactionRepository->findById($id);
     }
 
-    public function deposit(User $user, int $amount): Transaction
+    public function getTransactionsByUser(User $user): Collection
     {
-        return $this->transactionRepository->create(
+        return $this->transactionRepository->getTransactionsByUser($user->id);
+    }
+
+    public function getLastTransactionsByUser(User $user): Collection
+    {
+        return $this->transactionRepository->getLastTransactionsByUser($user->id);
+    }
+
+    public function deposit(User $user, float $amount): Transaction
+    {
+        $result = $this->transactionRepository->create(
             Transaction::factory()->deposit()->make([
                 'user_id' => $user->id,
                 'data_bank_id' => $user->dataBank->id,
                 'amount' => $amount,
             ])->toArray()
         );
+
+        if ($result) {
+            $this->dataBankService->update($user->dataBank->id, ['balance' => $user->dataBank->balance + $amount]);
+        }
+
+        return $result;
     }
 
-    public function transfer(User $sender, User $receiver, int $amount): Transaction
+    public function transfer(User $sender, User $receiver, float $amount): Transaction
     {
-        return $this->transactionRepository->create(
+        $result = $this->transactionRepository->create(
             Transaction::factory()->transfer()->make([
                 'user_id' => $sender->id,
                 'user_id_receiver' => $receiver->id,
@@ -42,6 +60,12 @@ class TransactionService
                 'amount' => $amount,
             ])->toArray()
         );
+
+        if ($result) {
+            $this->dataBankService->update($sender->dataBank->id, ['balance' => $sender->dataBank->balance - $amount]);
+        }
+
+        return $result;
     }
 
     public function update(int $id, array $data): bool
