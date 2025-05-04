@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DataBank extends Model
 {
+    use HasFactory;
+
     protected $table = 'data_banks';
 
     protected $fillable = [
