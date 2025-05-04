@@ -29,8 +29,9 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
             'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|same:password|min:8|string',
         ];
     }
 
@@ -49,6 +50,9 @@ class RegisterRequest extends FormRequest
             'email.exists' => 'O email informado não existe.',
             'password.required' => 'O campo senha é obrigatório.',
             'password.min' => 'O campo senha deve ter no mínimo 8 caracteres.',
+            'password_confirmation.required' => 'O campo confirmação de senha é obrigatório.',
+            'password_confirmation.same' => 'O campo confirmação de senha deve ser igual ao campo senha.',
+            'password_confirmation.min' => 'O campo confirmação de senha deve ter no mínimo 8 caracteres.',
         ];
     }
 }
