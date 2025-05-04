@@ -8,14 +8,18 @@ use App\Http\Requests\User;
 use App\http\Requests\Auth\ChangePasswordRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\User\UserUpdateRequest;
+use App\Services\Transaction\TransactionService;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function __construct(protected UserService $userService) {}
+    public function __construct(protected UserService $userService, protected TransactionService $transactionService) {}
 
     public function index(): View
     {
-        return view('dashboard.index');
+        $latestTransfers = $this->transactionService->getLastTransactionsByUser(Auth::user());
+        return view('dashboard.index', compact('latestTransfers'));
     }
 
     public function show(int $id): View
