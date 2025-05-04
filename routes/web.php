@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Action\Deposit\DepositController;
+use App\Http\Controllers\Transaction\TransactionController;
 use App\Http\Controllers\User\UserController;
 
 Route::middleware('guest')->group(function () {
@@ -10,10 +10,13 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/', [AuthController::class, 'login'])->name('form-login');
     Route::post('/register', [AuthController::class, 'register'])->name('form-register');
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
-    Route::get('/deposit', [DepositController::class, 'showDeposit'])->name('deposit');
+    Route::group(['prefix' => 'deposit', 'as' => 'deposit.'], function () {
+        Route::get('/', [TransactionController::class, 'showDeposit'])->name('index');
+        Route::post('/value', [TransactionController::class, 'deposit'])->name('form-deposit');
+    });
 });
