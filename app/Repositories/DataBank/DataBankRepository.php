@@ -8,5 +8,8 @@ use App\Models\DataBank;
 
 class DataBankRepository extends BaseRepository implements DataBankInterface
 {
-    public function __construct(protected DataBank $dataBank) {}
+    public function __construct(DataBank $model)
+    {
+        parent::__construct($model);
+    }
 }
