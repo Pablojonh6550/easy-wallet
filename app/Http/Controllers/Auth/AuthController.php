@@ -9,6 +9,8 @@ use Illuminate\View\View;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
@@ -44,9 +46,11 @@ class AuthController extends Controller
         return redirect('/');
     }
 
-    public function logout(Request $request): RedirectResponse
+    public function logout(): RedirectResponse
     {
-        $this->authService->logout($request);
+        $user = Auth::user();
+
+        $this->authService->logout();
 
         return redirect('/');
     }

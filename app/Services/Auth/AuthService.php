@@ -4,11 +4,12 @@ namespace App\Services\Auth;
 
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use App\Interfaces\Auth\AuthInterface;
+use Illuminate\Support\Facades\Session;
 
-class AuthService
+class AuthService implements AuthInterface
 {
     public function __construct(protected UserService $userService) {}
 
@@ -41,11 +42,11 @@ class AuthService
         return $user;
     }
 
-    public function logout(Request $request): void
+    public function logout(): void
     {
         Auth::logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        Session::invalidate();
+        Session::regenerateToken();
     }
 }

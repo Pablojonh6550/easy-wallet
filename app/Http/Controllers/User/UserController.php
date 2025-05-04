@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\User;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Services\User\UserService;
@@ -12,6 +12,11 @@ use Illuminate\Http\RedirectResponse;
 class UserController extends Controller
 {
     public function __construct(protected UserService $userService) {}
+
+    public function index(): View
+    {
+        return view('dashboard.index');
+    }
 
     public function show(int $id): View
     {
