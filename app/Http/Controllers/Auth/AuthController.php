@@ -48,8 +48,6 @@ class AuthController extends Controller
 
     public function logout(): RedirectResponse
     {
-        $user = Auth::user();
-
         $this->authService->logout();
 
         return redirect('/');
