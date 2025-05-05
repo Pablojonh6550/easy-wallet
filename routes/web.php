@@ -15,12 +15,18 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
+
     Route::group(['prefix' => 'deposit', 'as' => 'deposit.'], function () {
         Route::get('/', [TransactionController::class, 'showDeposit'])->name('index');
         Route::post('/value', [TransactionController::class, 'deposit'])->name('form-deposit');
     });
+
     Route::group(['prefix' => 'transfer', 'as' => 'transfer.'], function () {
         Route::get('/', [TransactionController::class, 'showTransfer'])->name('index');
         Route::post('/value', [TransactionController::class, 'transfer'])->name('form-transfer');
     });
+
+    Route::post('/reverse', [TransactionController::class, 'reverse'])->name('transactions.reverse');
+
+    Route::get('/history', [TransactionController::class, 'showHistory'])->name('history.index');
 });
