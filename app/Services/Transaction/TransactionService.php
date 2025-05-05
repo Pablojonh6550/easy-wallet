@@ -3,12 +3,13 @@
 namespace App\Services\Transaction;
 
 use App\Interfaces\Transaction\TransactionInterface;
-use App\Models\DataBank;
 use App\Models\Transaction;
 use App\Models\User;
-use Dflydev\DotAccessData\Data;
 use Illuminate\Database\Eloquent\Collection;
 use App\Services\DataBank\DataBankService;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
+use Illuminate\Support\Facades\Auth;
 
 class TransactionService
 {
@@ -120,5 +121,71 @@ class TransactionService
     public function delete(int $id): bool
     {
         return $this->transactionRepository->delete($id);
+    }
+
+    public function reverseTransactionById(int $transactionId): ?Transaction
+    {
+        return DB::transaction(function () use ($transactionId) {
+            $transaction = $this->find($transactionId);
+
+            if (!$transaction) {
+                throw new InvalidArgumentException('Transação não encontrada.');
+            }
+
+            if ($transaction->type === 'reversal') {
+                throw new InvalidArgumentException('Esta transação já é uma reversão e não pode ser revertida.');
+            }
+
+            $amount = $transaction->amount;
+            $sender = $transaction->user;
+            $senderDataBank = $sender->dataBank;
+
+            if ($transaction->type === 'deposit') {
+                if ($senderDataBank->balance < $amount) {
+                    throw new InvalidArgumentException('Saldo insuficiente para reverter o depósito.');
+                }
+
+                $this->dataBankService->update($senderDataBank->id, [
+                    'balance' => $senderDataBank->balance - $amount
+                ]);
+            }
+
+            if ($transaction->type === 'transfer') {
+                $receiver = $transaction->receiver;
+                $receiverDataBank = $receiver->dataBank;
+
+
+                $requester = Auth::user();
+                $isRequesterReceiver = $requester->id === $transaction->user_id_receiver;
+                $isRequesterSender = $requester->id === $transaction->user_id;
+
+                if ($isRequesterReceiver && $receiverDataBank->balance < $amount) {
+                    throw new InvalidArgumentException('Você não possui saldo suficiente para reverter a transferência recebida.');
+                }
+
+                if ($isRequesterSender && $senderDataBank->balance_special + $senderDataBank->balance < $amount) {
+                    throw new InvalidArgumentException('Saldo insuficiente para receber a reversão desta transferência.');
+                }
+
+                // Debita do receptor
+                $this->dataBankService->update($receiverDataBank->id, [
+                    'balance' => $receiverDataBank->balance - $amount
+                ]);
+
+                // Credita novamente o remetente
+                $this->dataBankService->update($senderDataBank->id, [
+                    'balance' => $senderDataBank->balance + $amount
+                ]);
+            }
+
+            return $this->transactionRepository->create([
+                'user_id' => $sender->id,
+                'user_id_receiver' => $transaction->user_id_receiver,
+                'data_bank_id' => $senderDataBank->id,
+                'type' => 'reversal',
+                'amount' => $amount,
+                'original_transaction_id' => $transaction->id,
+            ]);
+        });
     }
 }

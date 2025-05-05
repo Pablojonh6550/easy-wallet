@@ -16,7 +16,7 @@ class TransactionRepository extends BaseRepository implements TransactionInterfa
 
     public function getTransactionsByUser(int $id): Collection
     {
-        return $this->model->where('user_id', $id)->get();
+        return $this->model->where('user_id', $id)->orderBy('created_at', 'desc')->get();
     }
     public function getLastTransactionsByUser(int $id): Collection
     {

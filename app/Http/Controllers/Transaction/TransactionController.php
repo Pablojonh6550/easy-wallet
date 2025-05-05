@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Transfer\TransferRequest;
 use App\Services\DataBank\DataBankService;
-use Dflydev\DotAccessData\Data;
+use App\Http\Requests\Reverse\ReverseRequest;
+use Exception;
+use InvalidArgumentException;
 
 class TransactionController extends Controller
 {
@@ -25,6 +27,12 @@ class TransactionController extends Controller
     public function showTransfer(): View
     {
         return view('actions.transfer');
+    }
+
+    public function showHistory(): View
+    {
+        $transactions = $this->transactionService->getTransactionsByUser(Auth::user());
+        return view('history.index', compact('transactions'));
     }
 
     public function deposit(DepositRequest $request): RedirectResponse
@@ -62,5 +70,26 @@ class TransactionController extends Controller
         }
 
         return redirect()->route('dashboard')->with('success', 'Transferência realizada com sucesso.');
+    }
+
+    public function reverse(ReverseRequest $request): RedirectResponse
+    {
+        try {
+            if (!Hash::check($request->validated('password'), Auth::user()->password)) {
+                return redirect()->route('history.index')->with('error', 'Senha inválida. A reversão não foi realizada.');
+            }
+
+            $result = $this->transactionService->reverseTransactionById($request->validated('transaction_id'));
+
+            if ($result) {
+                return redirect()->route('history.index')->with('success', 'Reversão realizada com sucesso.');
+            }
+
+            return redirect()->route('history.index')->with('error', 'Não foi possível realizar a reversão. Verifique a transação.');
+        } catch (InvalidArgumentException $e) {
+            return redirect()->route('history.index')->with('error', $e->getMessage());
+        } catch (Exception $e) {
+            return redirect()->route('history.index')->with('error', 'Erro inesperado ao tentar reverter a transação.');
+        }
     }
 }
