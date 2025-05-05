@@ -10,16 +10,11 @@ services:
         restart: unless-stopped
         volumes:
             - .:/var/www
-        depends_on:
-            - mysql
-        environment:
-            DB_HOST: mysql
-            DB_PORT: 3306
-            DB_DATABASE: easy-wallet-db
-            DB_USERNAME: easy-agent
-            DB_PASSWORD: root
         working_dir: /var/www
         entrypoint: ["sh", "/usr/local/bin/entrypoint.sh"]
+        depends_on:
+            mysql:
+                condition: service_healthy
 
     nginx:
         image: nginx:alpine
@@ -37,10 +32,10 @@ services:
         container_name: mysql-container
         restart: unless-stopped
         environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: easy-wallet-db
-            MYSQL_USER: easy-agent
-            MYSQL_PASSWORD: root
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-laravel}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+            MYSQL_USER: ${MYSQL_USER:-user}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
         volumes:
             - dbdata:/var/lib/mysql
         ports:

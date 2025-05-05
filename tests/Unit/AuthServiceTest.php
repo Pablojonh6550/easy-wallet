@@ -33,12 +33,12 @@ class AuthServiceTest extends TestCase
     public function test_login_with_valid_credentials()
     {
         $request = Mockery::mock(LoginRequest::class);
-        $request->shouldReceive('validated')->with('email')->andReturn('user@example.com');
-        $request->shouldReceive('validated')->with('password')->andReturn('password123');
+        $request->shouldReceive('validated')->with('email')->andReturn('test@example.com');
+        $request->shouldReceive('validated')->with('password')->andReturn('password');
 
         Auth::shouldReceive('attempt')
             ->once()
-            ->with(['email' => 'user@example.com', 'password' => 'password123'])
+            ->with(['email' => 'test@example.com', 'password' => 'password'])
             ->andReturn(true);
 
         session()->shouldReceive('regenerate')->once();

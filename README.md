@@ -33,6 +33,16 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
+-   Lembre-se de carregar as informações da base de dados dentro da .env!
+
+```conf
+Campos necessários:
+    MYSQL_DATABASE: database-example
+    MYSQL_ROOT_PASSWORD: password-example
+    MYSQL_USER: user-example
+    MYSQL_PASSWORD: password-example
+```
+
 ## ▶️ Acessos
 
 -   Aplicação (local): http://localhost:8000
