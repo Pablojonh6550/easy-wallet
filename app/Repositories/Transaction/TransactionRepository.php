@@ -20,6 +20,9 @@ class TransactionRepository extends BaseRepository implements TransactionInterfa
     }
     public function getLastTransactionsByUser(int $id): Collection
     {
-        return $this->model->where('user_id', $id)->limit(5)->orderBy('created_at', 'desc')->get();
+        return $this->model->where(function ($query) use ($id) {
+            $query->where('user_id', $id)
+                ->orWhere('user_id_receiver', $id);
+        })->limit(5)->orderBy('created_at', 'desc')->get();
     }
 }

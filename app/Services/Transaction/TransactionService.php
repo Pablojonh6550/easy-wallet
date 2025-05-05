@@ -3,6 +3,7 @@
 namespace App\Services\Transaction;
 
 use App\Interfaces\Transaction\TransactionInterface;
+use App\Models\DataBank;
 use App\Models\Transaction;
 use App\Models\User;
 use Dflydev\DotAccessData\Data;
@@ -35,38 +36,81 @@ class TransactionService
 
     public function deposit(User $user, float $amount): Transaction
     {
-        $result = $this->transactionRepository->create(
+        $dataBank = $user->dataBank;
+        $balanceSpecial = $dataBank->balance_special;
+        $maxBalanceValue = 100;
+
+        $valueForBalanceSpecial = 0;
+        $balanceValue = $amount;
+
+        if ($balanceSpecial < $maxBalanceValue) {
+            $reporCheque = min($maxBalanceValue - $balanceSpecial, $amount);
+            $valueForBalanceSpecial = $reporCheque;
+            $balanceValue = $amount - $reporCheque;
+        }
+
+        $transaction = $this->transactionRepository->create(
             Transaction::factory()->deposit()->make([
                 'user_id' => $user->id,
-                'data_bank_id' => $user->dataBank->id,
+                'data_bank_id' => $dataBank->id,
                 'amount' => $amount,
             ])->toArray()
         );
 
-        if ($result) {
-            $this->dataBankService->update($user->dataBank->id, ['balance' => $user->dataBank->balance + $amount]);
+        if ($transaction) {
+            $this->dataBankService->update($dataBank->id, [
+                'balance' => $dataBank->balance + $balanceValue,
+                'balance_special' => $balanceSpecial + $valueForBalanceSpecial,
+            ]);
         }
 
-        return $result;
+        return $transaction;
     }
 
-    public function transfer(User $sender, User $receiver, float $amount): Transaction
+
+    public function transfer(User $sender, User $receiver, float $amount): ?Transaction
     {
-        $result = $this->transactionRepository->create(
+        $dataBank = $sender->dataBank;
+        $balance = $dataBank->balance;
+        $overdraft = $dataBank->balance_special;
+
+        if ($balance >= $amount) {
+            $newBalance = $balance - $amount;
+            $newOverdraft = $overdraft;
+        } elseif (($balance + $overdraft) >= $amount) {
+            $neededFromOverdraft = $amount - $balance;
+            $newBalance = 0;
+            $newOverdraft = $overdraft - $neededFromOverdraft;
+        } else {
+            return null;
+        }
+
+        $transaction = $this->transactionRepository->create(
             Transaction::factory()->transfer()->make([
                 'user_id' => $sender->id,
                 'user_id_receiver' => $receiver->id,
-                'data_bank_id' => $sender->dataBank->id,
+                'data_bank_id' => $dataBank->id,
                 'amount' => $amount,
             ])->toArray()
         );
 
-        if ($result) {
-            $this->dataBankService->update($sender->dataBank->id, ['balance' => $sender->dataBank->balance - $amount]);
+        if (!$transaction) {
+            return null;
         }
 
-        return $result;
+        $this->dataBankService->update($dataBank->id, [
+            'balance' => $newBalance,
+            'balance_special' => $newOverdraft
+        ]);
+
+        $receiverDataBank = $receiver->dataBank;
+        $this->dataBankService->update($receiverDataBank->id, [
+            'balance' => $receiverDataBank->balance + $amount
+        ]);
+
+        return $transaction;
     }
+
 
     public function update(int $id, array $data): bool
     {
