@@ -55,7 +55,7 @@
                     <form id="modal-deposit-form" action="{{ route('transfer.form-transfer') }}" method="POST">
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="confirmDepositModalLabel">Confirmar Depósito</h5>
+                            <h5 class="modal-title" id="confirmDepositModalLabel">Confirmar Transferência</h5>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
@@ -66,7 +66,7 @@
                             <input type="hidden" name="account" id="modal-account">
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Confirmar Depósito</button>
+                            <button type="submit" class="btn btn-primary">Confirmar Transferência</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         </div>
                     </form>
