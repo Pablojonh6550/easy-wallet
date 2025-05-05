@@ -21,6 +21,11 @@ class DataBankService
         return $this->dataBankRepository->findById($id);
     }
 
+    public function findByAccount(int $account): ?DataBank
+    {
+        return $this->dataBankRepository->findByAccount($account);
+    }
+
     public function create(User $user): DataBank
     {
         return $this->dataBankRepository->create(
