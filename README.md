@@ -41,12 +41,13 @@ docker compose up -d --build
 
 ## 🧪 Testes
 
+-   Localização: `ptests/Feature/`, `tests/Unit/`
+
 ```conf
 docker-compose exec easy-wallet-app php artisan test
 # ou
 docker-compose exec easy-wallet-app ./vendor/bin/phpunit
 
-Localização: `ptests/Feature/`, `tests/Unit/`
 ```
 
 ## 🔐 Autenticação
