@@ -20,16 +20,31 @@ class TransactionController extends Controller
 {
     public function __construct(protected TransactionService $transactionService, protected DataBankService $dataBankService) {}
 
+    /**
+     * Show the deposit page.
+     *
+     * @return \Illuminate\Contracts\View\View
+     */
     public function showDeposit(): View
     {
         return view('actions.deposit');
     }
 
+    /**
+     * Show the transfer page.
+     *
+     * @return \Illuminate\Contracts\View\View
+     */
     public function showTransfer(): View
     {
         return view('actions.transfer');
     }
 
+    /**
+     * Show the history of transactions page.
+     *
+     * @return View|RedirectResponse
+     */
     public function showHistory(): View|RedirectResponse
     {
         try {
@@ -46,6 +61,14 @@ class TransactionController extends Controller
         }
     }
 
+    /**
+     * Handles a deposit request by validating the user's password and depositing the specified amount.
+     *
+     * @param DepositRequest $request The request object containing validated deposit data.
+     * @return RedirectResponse Redirects to the dashboard with a success message if the deposit is successful,
+     *                          or back with an error message if the deposit fails.
+     * @throws Exception Logs an error and redirects back with an error message in case of an exception.
+     */
     public function deposit(DepositRequest $request): RedirectResponse
     {
         try {
@@ -66,6 +89,15 @@ class TransactionController extends Controller
         }
     }
 
+    /**
+     * Handles a transfer request by validating the user's password and transferring the specified amount.
+     *
+     * @param TransferRequest $request The request object containing validated transfer data.
+     * @return RedirectResponse Redirects to the dashboard with a success message if the transfer is successful,
+     *                          or back with an error message if the transfer fails due to incorrect password,
+     *                          insufficient balance, or other errors.
+     * @throws Exception Logs an error and redirects back with an error message in case of an exception.
+     */
     public function transfer(TransferRequest $request): RedirectResponse
     {
         try {
@@ -103,6 +135,15 @@ class TransactionController extends Controller
         }
     }
 
+    /**
+     * Reverses a transaction by id.
+     *
+     * @param ReverseRequest $request The request containing the transaction id and user password.
+     * @return RedirectResponse Redirects to the history page with a success message if the reversal is successful,
+     *                          or an error message if the reversal fails.
+     * @throws InvalidArgumentException Logs an error and redirects back with an error message if the transaction id is invalid.
+     * @throws Exception Logs an error and redirects back with an error message in case of an exception.
+     */
     public function reverse(ReverseRequest $request): RedirectResponse
     {
         try {

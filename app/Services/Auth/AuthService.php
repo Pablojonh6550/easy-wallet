@@ -32,6 +32,12 @@ class AuthService implements AuthInterface
         return true;
     }
 
+    /**
+     * Registers a new user and logs them in.
+     *
+     * @param array $data The array containing the user's data. Must contain 'name', 'email', 'password', and 'password_confirmation'.
+     * @return User The newly created user model instance.
+     */
     public function register(array $data): User
     {
 
@@ -42,6 +48,11 @@ class AuthService implements AuthInterface
         return $user;
     }
 
+    /**
+     * Log out the current user and invalidate their session.
+     *
+     * This method also regenerates the session token to prevent session fixation attacks.
+     */
     public function logout(): void
     {
         Auth::logout();

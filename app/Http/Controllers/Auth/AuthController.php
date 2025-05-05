@@ -14,15 +14,32 @@ class AuthController extends Controller
 {
     public function __construct(protected AuthInterface $authService) {}
 
+    /**
+     * Shows the login view
+     *
+     * @return \Illuminate\View\View
+     */
     public function showLogin(): View
     {
         return view('auth.login');
     }
 
+    /**
+     * Shows the register view
+     *
+     * @return \Illuminate\View\View
+     */
     public function showRegister(): View
     {
         return view('auth.register');
     }
+
+    /**
+     * Authenticates the user.
+     *
+     * @param LoginRequest $request
+     * @return RedirectResponse
+     */
 
     public function login(LoginRequest $request): RedirectResponse
     {
@@ -47,6 +64,12 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Registers a new user.
+     *
+     * @param RegisterRequest $request Contains the validated data for registration.
+     * @return RedirectResponse Redirects to the homepage upon successful registration or back with an error message on failure.
+     */
     public function register(RegisterRequest $request): RedirectResponse
     {
         try {
@@ -66,6 +89,13 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Logs out the user and redirects to the homepage.
+     * 
+     * If an error occurs while logging out, it redirects back with an error message.
+     * 
+     * @return RedirectResponse Redirect to the homepage upon successful logout or back with an error message on failure.
+     */
     public function logout(): RedirectResponse
     {
         try {

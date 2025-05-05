@@ -70,9 +70,4 @@ abstract class BaseRepository implements BaseInterface
     {
         return $this->model->destroy($id);
     }
-
-    public function valideted()
-    {
-        return $this->model->valideted();
-    }
 }

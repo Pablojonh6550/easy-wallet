@@ -17,6 +17,11 @@ class UserController extends Controller
 {
     public function __construct(protected UserService $userService, protected TransactionService $transactionService) {}
 
+    /**
+     * Display the user dashboard.
+     *
+     * @return View|RedirectResponse
+     */
     public function index(): View|RedirectResponse
     {
         try {
@@ -33,6 +38,12 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Display the specified user's details.
+     *
+     * @param int $id The ID of the user to display.
+     * @return View|RedirectResponse Returns the user details view or redirects back with an error message on failure.
+     */
     public function show(int $id): View|RedirectResponse
     {
         try {
@@ -50,6 +61,12 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Display the form for editing the specified user's details.
+     *
+     * @param int $id The ID of the user to edit.
+     * @return View|RedirectResponse Returns the user edit view or redirects back with an error message on failure.
+     */
     public function edit(int $id): View|RedirectResponse
     {
         try {
@@ -67,6 +84,14 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Updates the specified user's details.
+     *
+     * @param UserUpdateRequest $request The request object containing validated user data.
+     * @param int $id The ID of the user to update.
+     * @return RedirectResponse Redirects to the users index page with a success message if the update is successful,
+     *                          or back with an error message on failure.
+     */
     public function update(UserUpdateRequest $request, int $id): RedirectResponse
     {
         try {
@@ -83,6 +108,13 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Removes the specified user from the database.
+     *
+     * @param int $id The ID of the user to remove.
+     * @return RedirectResponse Redirects to the users index page with a success message if the removal is successful,
+     *                          or back with an error message on failure.
+     */
     public function delete(int $id): RedirectResponse
     {
         try {
