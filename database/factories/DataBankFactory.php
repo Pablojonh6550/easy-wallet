@@ -17,7 +17,7 @@ class DataBankFactory extends Factory
     public function definition(): array
     {
         return [
-            'number_account' => $this->faker->bankAccountNumber,
+            'number_account' => $this->faker->numberBetween(100000, 999999),
             'balance' => 0,
             'balance_special' => 100.00,
             'user_id' => \App\Models\User::factory(),

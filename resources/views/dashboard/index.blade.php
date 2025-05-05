@@ -23,7 +23,11 @@
                                 <span class="text-white"> 💵 Cheque especial: R$
                                     {{ number_format(Auth::user()->dataBank->balance_special, 2, ',', '.') }}</span>
                             </div>
-
+                            <div class="mb-3 w-100">
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bankDataModal">
+                                    Dados bancários
+                                </button>
+                            </div>
                             <div class="mb-3 w-100 d-flex justify-content-between align-items-center gap-4">
                                 <a href="{{ route('deposit.index') }}" class="btn btn-primary">Depositar</a>
                                 <a href="{{ route('transfer.index') }}" class="btn btn-primary">Transferir</a>
@@ -34,7 +38,7 @@
                                 <h6 class="mt-4">📃 Últimas transferências</h6>
                                 {{-- lista --}}
                                 <div class="card p-3 border-0">
-                                    @foreach ($latestTransfers as $transaction)
+                                    @forelse ($latestTransfers as $transaction)
                                         <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                                             <div class="d-flex align-items-center">
 
@@ -87,7 +91,9 @@
                                                 </div>
                                             @endif
                                         </div>
-                                    @endforeach
+                                    @empty
+                                        <span class="text-muted text-center w-100">Nenhuma transferência encontrada</span>
+                                    @endforelse
                                 </div>
                             </div>
                         </div>
@@ -96,4 +102,28 @@
             </div>
         </div>
     </section>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="bankDataModal" tabindex="-1" aria-labelledby="bankDataModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bankDataModalLabel">Dados Bancários</h5>
+                </div>
+                <div class="modal-body d-flex flex-column">
+                    <!-- Conteúdo dos dados bancários aqui -->
+                    <span class="font-weight-bold">Name: <span
+                            class="font-weight-normal">{{ Auth::user()->name }}</span></span>
+                    <span class="font-weight-bold">Conta: <span
+                            class="font-weight-normal">{{ Auth::user()->dataBank->number_account }}</span></span>
+                    <span class="font-weight-bold">Email: <span
+                            class="font-weight-normal">{{ Auth::user()->email }}</span></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
