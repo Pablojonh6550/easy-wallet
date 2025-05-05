@@ -7,7 +7,7 @@ services:
             dockerfile: .docker/php/Dockerfile
         image: easy-wallet-app
         container_name: easy-wallet-app
-        restart: unless-stopped
+        restart: on-failure
         volumes:
             - .:/var/www
         working_dir: /var/www
@@ -30,6 +30,11 @@ services:
     mysql:
         image: mysql:8.0
         container_name: mysql-container
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            interval: 5s
+            timeout: 10s
+            retries: 3
         restart: unless-stopped
         environment:
             MYSQL_DATABASE: ${MYSQL_DATABASE:-laravel}
