@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Easy Wallet | Dashboard')
+@section('title', 'Easy Wallet | Extrato')
 
 @section('content')
     <section class="w-100 min-vh-100 d-flex justify-content-center align-items-center">

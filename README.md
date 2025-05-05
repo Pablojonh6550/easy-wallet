@@ -45,6 +45,8 @@ docker compose up -d --build
 docker-compose exec easy-wallet-app php artisan test
 # ou
 docker-compose exec easy-wallet-app ./vendor/bin/phpunit
+
+Localização: `ptests/Feature/`, `tests/Unit/`
 ```
 
 ## 🔐 Autenticação
@@ -73,6 +75,12 @@ Authorization: Bearer {token}
 | POST   | /transfer/value | Realiza uma operação de transferência   |
 | GET    | /history        | Exibe o extrato de transações           |
 | POST   | /reverse        | Realiza a reversão de uma transação     |
+
+## 🐞 Logs
+
+Os erros são registrados em `storage/logs/laravel.log`.
+
+Utilize `Log::error()` ou `report()` para registrar exceções.
 
 ## 🧰 Comandos Úteis
 
