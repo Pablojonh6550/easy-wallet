@@ -19,4 +19,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [TransactionController::class, 'showDeposit'])->name('index');
         Route::post('/value', [TransactionController::class, 'deposit'])->name('form-deposit');
     });
+    Route::group(['prefix' => 'transfer', 'as' => 'transfer.'], function () {
+        Route::get('/', [TransactionController::class, 'showTransfer'])->name('index');
+        Route::post('/value', [TransactionController::class, 'transfer'])->name('form-transfer');
+    });
 });
