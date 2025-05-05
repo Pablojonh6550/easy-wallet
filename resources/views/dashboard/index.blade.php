@@ -27,7 +27,7 @@
                             <div class="mb-3 w-100 d-flex justify-content-between align-items-center gap-4">
                                 <a href="{{ route('deposit.index') }}" class="btn btn-primary">Depositar</a>
                                 <a href="{{ route('transfer.index') }}" class="btn btn-primary">Transferir</a>
-                                <a href="" class="btn btn-primary">Historico</a>
+                                <a href="{{ route('history.index') }}" class="btn btn-primary">Historico</a>
                             </div>
 
                             <div>
@@ -45,16 +45,25 @@
                                                         🔁
                                                     @elseif ($transaction->type === 'transfer' && $transaction->user_id_receiver === Auth::user()->id)
                                                         📥
+                                                    @elseif ($transaction->type === 'reversal')
+                                                        🔄
                                                     @endif
                                                 </div>
 
                                                 <div>
-                                                    <div class="fw-semibold">
-                                                        {{ ucfirst($transaction->type === 'transfer' ? 'Transferência' : 'Depósito') }}
-                                                    </div>
+                                                    @if ($transaction->type === 'reversal')
+                                                        <div class="fw-semibold">
+                                                            {{ ucfirst('Reversão') }}
+                                                        </div>
+                                                    @else
+                                                        <div class="fw-semibold">
+                                                            {{ ucfirst($transaction->type === 'transfer' ? 'Transferência' : 'Depósito') }}
+                                                        </div>
+                                                    @endif
                                                     <small class="text-muted">
                                                         {{ $transaction->created_at->format('d/m/Y') }}
                                                     </small>
+
                                                 </div>
                                             </div>
 
@@ -67,10 +76,16 @@
                                                         : false;
                                             @endphp
 
-                                            <div class="fw-bold {{ $received ? 'text-success' : 'text-danger' }}">
-                                                {{ $received ? '+' : '-' }}
-                                                R$ {{ number_format($transaction->amount, 2, ',', '.') }}
-                                            </div>
+                                            @if ($transaction->type === 'reversal')
+                                                <div class="fw-bold me-3 text-gray">
+                                                    R$ {{ number_format($transaction->amount, 2, ',', '.') }}
+                                                </div>
+                                            @else
+                                                <div class="fw-bold me-3 {{ $received ? 'text-success' : 'text-danger' }}">
+                                                    {{ $received ? '+' : '-' }}
+                                                    R$ {{ number_format($transaction->amount, 2, ',', '.') }}
+                                                </div>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
