@@ -20,11 +20,13 @@
                                 <span class="text-white">💰 Saldo disponível</span>
                                 <span class="fw-bold text-white fs-1">R$
                                     {{ number_format(Auth::user()->dataBank->balance, 2, ',', '.') }}</span>
+                                <span class="text-white"> 💵 Cheque especial: R$
+                                    {{ number_format(Auth::user()->dataBank->balance_special, 2, ',', '.') }}</span>
                             </div>
 
                             <div class="mb-3 w-100 d-flex justify-content-between align-items-center gap-4">
                                 <a href="{{ route('deposit.index') }}" class="btn btn-primary">Depositar</a>
-                                <a href="" class="btn btn-primary">Transferir</a>
+                                <a href="{{ route('transfer.index') }}" class="btn btn-primary">Transferir</a>
                                 <a href="" class="btn btn-primary">Historico</a>
                             </div>
 
@@ -41,6 +43,8 @@
                                                         💰
                                                     @elseif ($transaction->type === 'transfer')
                                                         🔁
+                                                    @elseif ($transaction->type === 'transfer' && $transaction->user_id_receiver === Auth::user()->id)
+                                                        📥
                                                     @endif
                                                 </div>
 
@@ -54,10 +58,17 @@
                                                 </div>
                                             </div>
 
-                                            {{-- Valor (negativo se for transferência/saída) --}}
-                                            <div
-                                                class="fw-bold {{ $transaction->type === 'deposit' ? 'text-success' : 'text-danger' }}">
-                                                {{ $transaction->type === 'deposit' ? '+' : '-' }}
+                                            @php
+                                                $received =
+                                                    ($transaction->type === 'transfer' &&
+                                                        $transaction->user_id_receiver === Auth::user()->id) ||
+                                                    $transaction->type === 'deposit'
+                                                        ? true
+                                                        : false;
+                                            @endphp
+
+                                            <div class="fw-bold {{ $received ? 'text-success' : 'text-danger' }}">
+                                                {{ $received ? '+' : '-' }}
                                                 R$ {{ number_format($transaction->amount, 2, ',', '.') }}
                                             </div>
                                         </div>
