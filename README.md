@@ -37,10 +37,17 @@ docker compose up -d --build
 
 ```conf
 Campos necessários:
-    MYSQL_DATABASE: database-example
-    MYSQL_ROOT_PASSWORD: password-example
-    MYSQL_USER: user-example
-    MYSQL_PASSWORD: password-example
+    DB_CONNECTION=mysql
+    DB_HOST=mysql
+    DB_PORT=3306
+    DB_DATABASE=easy-wallet-db
+    DB_USERNAME=easy-agent
+    DB_PASSWORD=root
+
+    MYSQL_DATABASE=easy-wallet-db
+    MYSQL_ROOT_PASSWORD=root
+    MYSQL_USER=easy-agent
+    MYSQL_PASSWORD=root
 ```
 
 ## ▶️ Acessos
