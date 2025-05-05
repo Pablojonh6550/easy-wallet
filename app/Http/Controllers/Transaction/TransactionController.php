@@ -14,6 +14,7 @@ use App\Services\DataBank\DataBankService;
 use App\Http\Requests\Reverse\ReverseRequest;
 use Exception;
 use InvalidArgumentException;
+use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
@@ -29,47 +30,77 @@ class TransactionController extends Controller
         return view('actions.transfer');
     }
 
-    public function showHistory(): View
+    public function showHistory(): View|RedirectResponse
     {
-        $transactions = $this->transactionService->getTransactionsByUser(Auth::user());
-        return view('history.index', compact('transactions'));
+        try {
+
+            $transactions = $this->transactionService->getTransactionsByUser(Auth::user());
+            return view('history.index', compact('transactions'));
+        } catch (Exception $e) {
+            Log::error('Erro ao tentar listar transações', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function deposit(DepositRequest $request): RedirectResponse
     {
-        if (Hash::check($request->validated('password'), Auth::user()->password)) {
-            $result = $this->transactionService->deposit(Auth::user(), floatval($request->validated('amount')));
-            if ($result)
-                return redirect()->route('dashboard')->with('success', 'Depósito realizado com sucesso.');
+        try {
+
+            if (Hash::check($request->validated('password'), Auth::user()->password)) {
+                $result = $this->transactionService->deposit(Auth::user(), floatval($request->validated('amount')));
+                if ($result)
+                    return redirect()->route('dashboard')->with('success', 'Depósito realizado com sucesso.');
+            }
+            return redirect()->back()->with('error', 'Não foi possível realizar o depósito.');
+        } catch (Exception $e) {
+            Log::error('Erro ao tentar realizar depósito', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back()->with('error', $e->getMessage());
         }
-        return redirect()->back()->with('error', 'Não foi possível realizar o depósito.');
     }
 
     public function transfer(TransferRequest $request): RedirectResponse
     {
-        $user = Auth::user();
+        try {
 
-        if (!Hash::check($request->validated('password'), $user->password)) {
-            return redirect()->back()->with('error', 'Senha incorreta.');
+            $user = Auth::user();
+
+            if (!Hash::check($request->validated('password'), $user->password)) {
+                return redirect()->back()->with('error', 'Senha incorreta.');
+            }
+
+            $account = $this->dataBankService->findByAccount($request->validated('account'));
+
+            if (!$account) {
+                return redirect()->back()->with('error', 'Conta de destino não encontrada.');
+            }
+
+            $receiver = $account->user;
+
+            $amount = floatval($request->validated('amount'));
+
+            $result = $this->transactionService->transfer($user, $receiver, $amount);
+
+            if (!$result) {
+                return redirect()->back()->with('error', 'Saldo insuficiente ou cheque especial insuficiente.');
+            }
+
+            return redirect()->route('dashboard')->with('success', 'Transferência realizada com sucesso.');
+        } catch (Exception $e) {
+            Log::error('Erro ao tentar realizar transferência', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back()->with('error', $e->getMessage());
         }
-
-        $account = $this->dataBankService->findByAccount($request->validated('account'));
-
-        if (!$account) {
-            return redirect()->back()->with('error', 'Conta de destino não encontrada.');
-        }
-
-        $receiver = $account->user;
-
-        $amount = floatval($request->validated('amount'));
-
-        $result = $this->transactionService->transfer($user, $receiver, $amount);
-
-        if (!$result) {
-            return redirect()->back()->with('error', 'Saldo insuficiente ou cheque especial insuficiente.');
-        }
-
-        return redirect()->route('dashboard')->with('success', 'Transferência realizada com sucesso.');
     }
 
     public function reverse(ReverseRequest $request): RedirectResponse
@@ -87,8 +118,16 @@ class TransactionController extends Controller
 
             return redirect()->route('history.index')->with('error', 'Não foi possível realizar a reversão. Verifique a transação.');
         } catch (InvalidArgumentException $e) {
+            Log::error('Erro ao tentar realizar reversão', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return redirect()->route('history.index')->with('error', $e->getMessage());
         } catch (Exception $e) {
+            Log::error('Erro ao tentar realizar reversão', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return redirect()->route('history.index')->with('error', 'Erro inesperado ao tentar reverter a transação.');
         }
     }

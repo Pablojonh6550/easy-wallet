@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Interfaces\Auth\AuthInterface;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -28,28 +26,61 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        try {
+            $credentials = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
 
-        $this->authService->login($credentials);
+            $this->authService->login($credentials);
 
-        return redirect()->intended('/');
+            return redirect()->intended('/');
+        } catch (\Exception $error) {
+
+            Log::error('Erro ao tentar login', [
+                'email' => $request->validated('email'),
+                'exception' => $error->getMessage(),
+                'trace' => $error->getTraceAsString(),
+            ]);
+
+            return back()->with('error', $error->getMessage());
+        }
     }
 
     public function register(RegisterRequest $request): RedirectResponse
     {
+        try {
 
-        $this->authService->register($request->validated());
+            $this->authService->register($request->validated());
 
-        return redirect('/');
+            return redirect('/');
+        } catch (\Exception $e) {
+
+            Log::error('Erro ao tentar registrar', [
+                'email' => $request->validated('email'),
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function logout(): RedirectResponse
     {
-        $this->authService->logout();
+        try {
 
-        return redirect('/');
+            $this->authService->logout();
+
+            return redirect('/');
+        } catch (\Exception $e) {
+
+            Log::error('Erro ao tentar logout', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->with('error', $e->getMessage());
+        }
     }
 }
