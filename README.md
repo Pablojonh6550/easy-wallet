@@ -52,13 +52,13 @@ docker-compose exec easy-wallet-app ./vendor/bin/phpunit
 
 ## 🔐 Autenticação
 
-Este projeto utiliza o sistema de autenticação padrão do Laravel (session-based authentication).
+Este projeto utiliza o sistema de autenticação padrão do Laravel baseado em sessões (Web Guard).
 
--   Para fazer login: POST /login
-
-```
-Authorization: Bearer {token}
-```
+-   Formulário de login: `GET /`
+-   Submissão do login: `POST /`
+-   Formulário de registro: `GET /register`
+-   Registro de novo usuário: `POST /register`
+-   Logout: `GET /logout`
 
 ## 📌 Rotas Web
 
@@ -77,7 +77,47 @@ Authorization: Bearer {token}
 | GET    | /history        | Exibe o extrato de transações           |
 | POST   | /reverse        | Realiza a reversão de uma transação     |
 
-## 🐞 Logs
+## 📄 Estrutura do Banco de Dados
+
+-   `users`
+
+| Coluna            | Tipo      | Descrição                       |
+| ----------------- | --------- | ------------------------------- |
+| id                | bigint    | ID único do usuário             |
+| name              | string    | Nome do usuário                 |
+| email             | string    | E-mail do usuário (único)       |
+| email_verified_at | timestamp | Data de verificação do e-mail   |
+| password          | string    | Senha criptografada             |
+| remember_token    | string    | Token de sessão                 |
+| created_at        | timestamp | Data de criação do registro     |
+| updated_at        | timestamp | Data de atualização do registro |
+
+-   `data_banks`
+
+| Coluna          | Tipo      | Descrição                         |
+| --------------- | --------- | --------------------------------- |
+| id              | bigint    | ID único da conta bancária        |
+| number_account  | string    | Número da conta                   |
+| balance         | decimal   | Saldo atual                       |
+| balance_special | decimal   | Limite especial da conta          |
+| user_id         | bigint    | ID do usuário (chave estrangeira) |
+| created_at      | timestamp | Data de criação do registro       |
+| updated_at      | timestamp | Data de atualização do registro   |
+
+-   `transactions`
+
+| Coluna           | Tipo      | Descrição                                            |
+| ---------------- | --------- | ---------------------------------------------------- |
+| id               | bigint    | ID único da transação                                |
+| user_id          | bigint    | ID do usuário que iniciou a transação                |
+| data_bank_id     | bigint    | ID da conta bancária associada                       |
+| amount           | decimal   | Valor da transação                                   |
+| type             | string    | Tipo da transação: `deposit`, `transfer`, `reversal` |
+| user_id_receiver | bigint    | (opcional) ID do usuário que recebeu a transferência |
+| created_at       | timestamp | Data e hora de criação da transação                  |
+| updated_at       | timestamp | Data e hora da última atualização da transação       |
+
+## 🐞 Logs, Erros e Debug
 
 Os erros são registrados em `storage/logs/laravel.log`.
 
